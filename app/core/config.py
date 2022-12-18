@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     POSTGRES_SERVER: str = "127.0.0.1"
     POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_PASSWORD: str = "5741"
     POSTGRES_DB: str = "realworld"
     DATABASE_URL: Optional[PostgresDsn] = None
 
