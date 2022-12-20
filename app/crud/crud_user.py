@@ -25,26 +25,27 @@ async def create(payload: UserCreate) -> UUID4 | None:
         email=payload.email,
         hashed_password=get_password_hash(payload.password),
     ).returning(db.users.c.id)
+
     return await database.execute(query=query)
 
 
 async def get_user_by_email(email: str) -> UserDB | None:
     query = db.users.select().where(email == db.users.c.email)
     user_row = await database.fetch_one(query=query)
-    return UserDB(**user_row) if user_row else None
+    return UserDB(**user_row._mapping) if user_row else None
 
 
-async def get_user_by_id(user_id: str) -> UserDB | None:
+async def get_user_by_id(user_id: UUID4) -> UserDB | None:
     query = db.users.select().where(user_id == db.users.c.id)
     user_row = await database.fetch_one(query=query)
-    return UserDB(**user_row) if user_row else None
+    return UserDB(**user_row._mapping) if user_row else None
 
 
 async def get_users() -> list[UserDB]:
     query = db.users.select()
 
     users = await database.fetch_all(query=query)
-    return [UserDB(**user) for user in users]
+    return [UserDB(**user._mapping) for user in users]
 
 
 async def authenticate(email: str, password: SecretStr) -> UserDB | None:

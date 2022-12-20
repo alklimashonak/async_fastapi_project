@@ -61,7 +61,7 @@ async def test_user() -> UserDB:
     )
     user_id = await crud_user.create(payload=user_data)
 
-    return await crud_user.get_user_by_id(user_id=str(user_id))
+    return await crud_user.get_user_by_id(user_id=user_id)
 
 
 @pytest.fixture
