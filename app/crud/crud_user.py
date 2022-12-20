@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from fastapi import HTTPException
@@ -8,6 +9,8 @@ from app import db
 from app.core.security import get_password_hash, verify_password
 from app.db import database
 from app.schemas.user import UserCreate, UserDB
+
+logger = logging.getLogger(__name__)
 
 
 async def create(payload: UserCreate) -> UUID4 | None:
@@ -21,7 +24,7 @@ async def create(payload: UserCreate) -> UUID4 | None:
         id=uuid.uuid4(),
         email=payload.email,
         hashed_password=get_password_hash(payload.password),
-    )
+    ).returning(db.users.c.id)
     return await database.execute(query=query)
 
 
@@ -32,7 +35,7 @@ async def get_user_by_email(email: str) -> UserDB | None:
 
 
 async def get_user_by_id(user_id: str) -> UserDB | None:
-    query = db.users.select().where(user_id == db.users.c.email)
+    query = db.users.select().where(user_id == db.users.c.id)
     user_row = await database.fetch_one(query=query)
     return UserDB(**user_row) if user_row else None
 
