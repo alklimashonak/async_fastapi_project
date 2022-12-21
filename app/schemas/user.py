@@ -23,5 +23,5 @@ class UserResponse(BaseModel):
     user: UserWithToken
 
 
-class UserUpdate(UserBase):
-    password: str | None
+class UserUpdate(BaseModel):
+    password: SecretStr | None

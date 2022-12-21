@@ -8,7 +8,7 @@ from starlette.status import HTTP_400_BAD_REQUEST
 from app import db
 from app.core.security import get_password_hash, verify_password
 from app.db import database
-from app.schemas.user import UserCreate, UserDB
+from app.schemas.user import UserCreate, UserDB, UserUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,13 @@ async def create(payload: UserCreate) -> UUID4 | None:
             status_code=HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system.",
         )
-    query = db.users.insert().values(
-        id=uuid.uuid4(),
-        email=payload.email,
-        hashed_password=get_password_hash(payload.password),
-    ).returning(db.users.c.id)
+    query = db.users.insert() \
+        .values(
+            id=uuid.uuid4(),
+            email=payload.email,
+            hashed_password=get_password_hash(payload.password),
+        ) \
+        .returning(db.users.c.id)
 
     return await database.execute(query=query)
 
@@ -46,6 +48,17 @@ async def get_users() -> list[UserDB]:
 
     users = await database.fetch_all(query=query)
     return [UserDB(**user._mapping) for user in users]
+
+
+async def update(user_id: UUID4, payload: UserUpdate) -> UUID4 | None:
+    new_hashed_password = get_password_hash(password=payload.password)
+
+    query = db.users.update() \
+        .where(db.users.c.id == user_id) \
+        .values(hashed_password=new_hashed_password) \
+        .returning(db.users.c.id)
+
+    return await database.execute(query=query)
 
 
 async def authenticate(email: str, password: SecretStr) -> UserDB | None:

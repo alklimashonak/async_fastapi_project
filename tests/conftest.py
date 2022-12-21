@@ -12,6 +12,8 @@ from httpx import AsyncClient
 from pydantic import EmailStr, SecretStr
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
+from tests.utils.user import TEST_USER_EMAIL, TEST_USER_PASSWORD
+
 environ["TESTING"] = "True"
 
 from app.core.config import settings
@@ -36,7 +38,7 @@ def create_test_database():
     url = settings.DATABASE_URL
     if DROP_DATABASE_AFTER_TEST:
         assert not database_exists(url), "Test database already exists. Aborting tests."
-    elif not database_exists(url):
+    if not database_exists(url):
         create_database(url)  # Create the test database.
     config = Config(ini_file)  # Run the migrations.
     config.set_main_option("script_location", alembic_directory)
@@ -56,8 +58,8 @@ async def app() -> FastAPI:
 @pytest.fixture
 async def test_user() -> UserDB:
     user_data = UserCreate(
-        email=EmailStr('testuser@mail.com'),
-        password=SecretStr('1234')
+        email=EmailStr(TEST_USER_EMAIL),
+        password=SecretStr(TEST_USER_PASSWORD)
     )
     user_id = await crud_user.create(payload=user_data)
 

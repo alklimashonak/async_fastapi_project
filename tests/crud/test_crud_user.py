@@ -3,7 +3,8 @@ from httpx import AsyncClient
 from pydantic import EmailStr, SecretStr
 
 from app.crud import crud_user
-from app.schemas.user import UserDB, UserCreate
+from app.schemas.user import UserDB, UserCreate, UserUpdate
+from tests.utils.user import TEST_USER_PASSWORD
 
 pytestmark = pytest.mark.anyio
 
@@ -53,13 +54,52 @@ async def test_create_user(
     assert new_user.email == user_data.email
 
 
-async def test_authenticate_user(
+async def test_update_user_password(
+        async_client: AsyncClient,
+        test_user: UserDB
+) -> None:
+    new_password = SecretStr('12345678')
+    update_data = UserUpdate(password=new_password)
+
+    user_id = await crud_user.update(user_id=test_user.id, payload=update_data)
+    user = await crud_user.authenticate(email=test_user.email, password=new_password)
+
+    assert user_id
+    assert user
+
+
+async def test_authentication_success(
         async_client: AsyncClient,
         test_user: UserDB,
 ) -> None:
     user = await crud_user.authenticate(
         email=test_user.email,
-        password=SecretStr('1234')
+        password=SecretStr(TEST_USER_PASSWORD)
     )
 
+    assert user
     assert user == test_user
+
+
+async def test_authentication_with_non_existed_email(
+        async_client: AsyncClient,
+        test_user: UserDB,
+) -> None:
+    user = await crud_user.authenticate(
+        email=test_user.email + 'qwe',
+        password=SecretStr(TEST_USER_PASSWORD)
+    )
+
+    assert not user
+
+
+async def test_authentication_wrong_password(
+        async_client: AsyncClient,
+        test_user: UserDB,
+) -> None:
+    user = await crud_user.authenticate(
+        email=test_user.email,
+        password=SecretStr(TEST_USER_PASSWORD + 'qwe')
+    )
+
+    assert not user
