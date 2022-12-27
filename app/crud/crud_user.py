@@ -13,7 +13,7 @@ from app.schemas.user import UserCreate, UserDB, UserUpdate
 logger = logging.getLogger(__name__)
 
 
-async def create(payload: UserCreate) -> UUID4 | None:
+async def create(payload: UserCreate) -> UserDB | None:
     user_db = await get_user_by_email(email=payload.email)
     if user_db:
         raise HTTPException(
@@ -26,7 +26,7 @@ async def create(payload: UserCreate) -> UUID4 | None:
             email=payload.email,
             hashed_password=get_password_hash(payload.password),
         ) \
-        .returning(db.users.c.id)
+        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
 
     return await database.execute(query=query)
 
@@ -50,13 +50,13 @@ async def get_users() -> list[UserDB]:
     return [UserDB(**user._mapping) for user in users]
 
 
-async def update(user_id: UUID4, payload: UserUpdate) -> UUID4 | None:
+async def update(user_id: UUID4, payload: UserUpdate) -> UserDB | None:
     new_hashed_password = get_password_hash(password=payload.password)
 
     query = db.users.update() \
         .where(db.users.c.id == user_id) \
         .values(hashed_password=new_hashed_password) \
-        .returning(db.users.c.id)
+        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
 
     return await database.execute(query=query)
 

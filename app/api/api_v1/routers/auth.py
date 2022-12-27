@@ -14,11 +14,11 @@ router = APIRouter()
 async def register(
         user_in: UserCreate
 ):
-    user_id = await crud_user.create(payload=user_in)
+    user = await crud_user.create(payload=user_in)
 
-    token = create_access_token(subject=str(user_id))
+    token = create_access_token(subject=str(user.id))
     return UserResponse(
-        user=UserDB(**user_in.dict()),
+        user=user,
         access_token=token,
     )
 
@@ -31,6 +31,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     token = create_access_token(subject=user.email)
     return UserResponse(
-        user=UserDB(**user.dict()),
+        user=user,
         access_token=token,
     )
