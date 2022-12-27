@@ -30,11 +30,12 @@ async def test_get_user_by_email(
 
 
 async def test_get_users(
-        async_client: AsyncClient
+        async_client: AsyncClient,
+        test_user: UserDB,
 ) -> None:
     users = await crud_user.get_users()
 
-    assert len(users) == 0
+    assert len(users) == 1
 
 
 async def test_create_user(
