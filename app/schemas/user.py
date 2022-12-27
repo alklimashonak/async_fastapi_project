@@ -15,11 +15,11 @@ class UserCreate(UserBase):
     password: SecretStr
 
 
+class UserUpdate(BaseModel):
+    password: SecretStr | None
+
+
 class UserResponse(BaseModel):
     user: UserBase
     access_token: str | None
     token_type: str | None = 'bearer'
-
-
-class UserUpdate(BaseModel):
-    password: SecretStr | None
