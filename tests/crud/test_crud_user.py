@@ -46,8 +46,7 @@ async def test_create_user(
         password=SecretStr('1234'),
     )
     users_before = await crud_user.get_users()
-    new_user_id = await crud_user.create(payload=user_data)
-    new_user = await crud_user.get_user_by_id(user_id=new_user_id)
+    new_user = await crud_user.create(payload=user_data)
     users_after = await crud_user.get_users()
 
     assert len(users_before) == 0
@@ -62,11 +61,11 @@ async def test_update_user_password(
     new_password = SecretStr('12345678')
     update_data = UserUpdate(password=new_password)
 
-    user_id = await crud_user.update(user_id=test_user.id, payload=update_data)
-    user = await crud_user.authenticate(email=test_user.email, password=new_password)
+    user = await crud_user.update(user_id=test_user.id, payload=update_data)
+    authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
 
-    assert user_id
-    assert user
+    assert user.id
+    assert authenticated_user
 
 
 async def test_authentication_success(

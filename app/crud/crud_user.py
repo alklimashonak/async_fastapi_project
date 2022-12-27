@@ -28,7 +28,7 @@ async def create(payload: UserCreate) -> UserDB | None:
         ) \
         .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
 
-    return await database.execute(query=query)
+    return await database.fetch_one(query=query)
 
 
 async def get_user_by_email(email: str) -> UserDB | None:
@@ -58,7 +58,7 @@ async def update(user_id: UUID4, payload: UserUpdate) -> UserDB | None:
         .values(hashed_password=new_hashed_password) \
         .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
 
-    return await database.execute(query=query)
+    return await database.fetch_one(query=query)
 
 
 async def authenticate(email: str, password: SecretStr) -> UserDB | None:
