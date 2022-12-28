@@ -76,7 +76,6 @@ async def test_authentication_success(
         email=test_user.email,
         password=SecretStr(TEST_USER_PASSWORD)
     )
-
     assert user
     assert user == test_user
 

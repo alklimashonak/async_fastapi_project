@@ -5,7 +5,7 @@ from app.core.security import create_access_token, get_user_email_from_token
 pytestmark = pytest.mark.anyio
 
 
-async def test_create_access_token():
+async def test_create_access_token() -> None:
     test_subject = 'test@mail.com'
     test_expires_delta = None
 
