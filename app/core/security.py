@@ -30,11 +30,11 @@ def create_access_token(
     return encoded_jwt
 
 
-def get_user_id_from_token(token: str) -> str:
+def get_user_email_from_token(token: str) -> str:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=ALGORITHM)
-        user_id = payload.get("sub", None)
-        return user_id
+        user_email = payload.get("sub", None)
+        return user_email
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
