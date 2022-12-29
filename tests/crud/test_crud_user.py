@@ -103,56 +103,56 @@ class TestCreateUser:
         assert 'already exists' in exc_info.value.detail
 
 
-async def test_update_user_password(
-        async_client: AsyncClient,
-        test_user: UserDB
-) -> None:
-    new_password = SecretStr('12345678')
-    update_data = UserUpdate(password=new_password)
+class TestUpdateUser:
+    async def test_update_user_password_works(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB
+    ) -> None:
+        new_password = SecretStr('12345678')
+        update_data = UserUpdate(password=new_password)
 
-    user = await crud_user.update(user_id=test_user.id, payload=update_data)
-    authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
+        user = await crud_user.update(user_id=test_user.id, payload=update_data)
+        authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
 
-    assert user.id
-    assert authenticated_user
-
-
-async def test_authentication_success(
-        async_client: AsyncClient,
-        test_user: UserDB,
-) -> None:
-    user = await crud_user.authenticate(
-        email=test_user.email,
-        password=SecretStr(TEST_USER_PASSWORD)
-    )
-
-    users = await crud_user.get_users()
-
-    assert len(users) == 1
-
-    assert user
-    assert user == test_user
+        assert user.id
+        assert authenticated_user
 
 
-async def test_authentication_with_non_existed_email(
-        async_client: AsyncClient,
-        test_user: UserDB,
-) -> None:
-    user = await crud_user.authenticate(
-        email=test_user.email + 'qwe',
-        password=SecretStr(TEST_USER_PASSWORD)
-    )
+class TestAuthenticateUser:
+    async def test_authentication_success(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        user = await crud_user.authenticate(
+            email=test_user.email,
+            password=SecretStr(TEST_USER_PASSWORD)
+        )
 
-    assert not user
+        assert user
+        assert user == test_user
 
+    async def test_authentication_with_non_existed_email_failed(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        user = await crud_user.authenticate(
+            email=test_user.email + 'qwe',
+            password=SecretStr(TEST_USER_PASSWORD)
+        )
 
-async def test_authentication_wrong_password(
-        async_client: AsyncClient,
-        test_user: UserDB,
-) -> None:
-    user = await crud_user.authenticate(
-        email=test_user.email,
-        password=SecretStr(TEST_USER_PASSWORD + 'qwe')
-    )
+        assert not user
 
-    assert not user
+    async def test_authentication_wrong_password_failed(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        user = await crud_user.authenticate(
+            email=test_user.email,
+            password=SecretStr(TEST_USER_PASSWORD + 'qwe')
+        )
+
+        assert not user
