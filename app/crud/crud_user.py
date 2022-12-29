@@ -28,7 +28,8 @@ async def create(payload: UserCreate) -> UserDB | None:
         ) \
         .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
 
-    return await database.fetch_one(query=query)
+    user_row = await database.fetch_one(query=query)
+    return UserDB(**user_row._mapping)
 
 
 async def get_user_by_email(email: str) -> UserDB | None:

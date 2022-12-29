@@ -76,6 +76,11 @@ async def test_authentication_success(
         email=test_user.email,
         password=SecretStr(TEST_USER_PASSWORD)
     )
+
+    users = await crud_user.get_users()
+
+    assert len(users) == 1
+
     assert user
     assert user == test_user
 
