@@ -1,6 +1,6 @@
 import sqlalchemy
 from databases import Database
-from sqlalchemy import create_engine, MetaData, Column, String, Integer, ForeignKey, Boolean
+from sqlalchemy import create_engine, MetaData, Column, String, Integer, ForeignKey, Boolean, false
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.config import settings
@@ -17,7 +17,7 @@ users = sqlalchemy.Table(
     Column('id', UUID, primary_key=True, index=True),
     Column('email', String(64), unique=True, index=True, nullable=False),
     Column('hashed_password', sqlalchemy.String),
-    Column('is_superuser', Boolean, nullable=False, default=False)
+    Column('is_superuser', Boolean, nullable=False, server_default=false())
 )
 
 teams = sqlalchemy.Table(

@@ -59,7 +59,7 @@ async def app() -> FastAPI:
 async def test_user() -> UserDB:
     user_data = UserCreate(
         email=EmailStr(TEST_USER_EMAIL),
-        password=SecretStr(TEST_USER_PASSWORD)
+        password=SecretStr(TEST_USER_PASSWORD),
     )
     user = await crud_user.create(payload=user_data)
 

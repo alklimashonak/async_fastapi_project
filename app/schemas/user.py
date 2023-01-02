@@ -8,6 +8,7 @@ class UserBase(BaseModel):
 class UserDB(UserBase):
     id: UUID4
     hashed_password: str
+    is_superuser: bool
 
 
 class UserCreate(UserBase):

@@ -26,7 +26,7 @@ async def create(payload: UserCreate) -> UserDB | None:
             email=payload.email,
             hashed_password=get_password_hash(payload.password),
         ) \
-        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
+        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password, db.users.c.is_superuser)
 
     user_row = await database.fetch_one(query=query)
     return UserDB(**user_row._mapping) if user_row else None
