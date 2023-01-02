@@ -15,7 +15,7 @@ class TeamCreate(TeamBase):
     name: str = Field(max_length=64)
 
 
-class UserUpdate(TeamBase):
+class TeamUpdate(TeamBase):
     name: str = Field(max_length=64)
 
 
