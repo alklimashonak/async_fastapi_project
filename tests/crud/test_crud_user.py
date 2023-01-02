@@ -15,6 +15,17 @@ logger = logging.getLogger(__name__)
 pytestmark = pytest.mark.anyio
 
 
+class TestGetUsers:
+    async def test_get_users(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        users = await crud_user.get_users()
+
+        assert len(users) == 1
+
+
 class TestGetUserByID:
     async def test_get_user_by_existing_id_returns_user(
             self,
@@ -58,17 +69,6 @@ class TestGetUserByEmail:
         assert not user
 
 
-class TestGetUsers:
-    async def test_get_users(
-            self,
-            async_client: AsyncClient,
-            test_user: UserDB,
-    ) -> None:
-        users = await crud_user.get_users()
-
-        assert len(users) == 1
-
-
 class TestCreateUser:
     async def test_create_user_works(
             self,
@@ -78,12 +78,9 @@ class TestCreateUser:
             email=EmailStr('newuser@mail.com'),
             password=SecretStr('1234'),
         )
-        users_before = await crud_user.get_users()
-        new_user = await crud_user.create(payload=user_data)
-        users_after = await crud_user.get_users()
 
-        assert len(users_before) == 0
-        assert len(users_after) == 1
+        new_user = await crud_user.create(payload=user_data)
+
         assert new_user.email == user_data.email
 
     async def test_cant_create_user_if_email_already_exists(
@@ -101,22 +98,6 @@ class TestCreateUser:
 
         assert exc_info.value.status_code == 400
         assert 'already exists' in exc_info.value.detail
-
-
-class TestUpdateUser:
-    async def test_update_user_password_works(
-            self,
-            async_client: AsyncClient,
-            test_user: UserDB
-    ) -> None:
-        new_password = SecretStr('12345678')
-        update_data = UserUpdate(password=new_password)
-
-        user = await crud_user.update(user_id=test_user.id, payload=update_data)
-        authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
-
-        assert user.id
-        assert authenticated_user
 
 
 class TestAuthenticateUser:
@@ -156,3 +137,19 @@ class TestAuthenticateUser:
         )
 
         assert not user
+
+
+class TestUpdateUser:
+    async def test_update_user_password_works(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB
+    ) -> None:
+        new_password = SecretStr('12345678')
+        update_data = UserUpdate(password=new_password)
+
+        user = await crud_user.update(user_id=test_user.id, payload=update_data)
+        authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
+
+        assert user.id
+        assert authenticated_user

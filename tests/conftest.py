@@ -55,7 +55,7 @@ async def app() -> FastAPI:
     return app
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope='module')
 async def test_user() -> UserDB:
     user_data = UserCreate(
         email=EmailStr(TEST_USER_EMAIL),
@@ -66,7 +66,7 @@ async def test_user() -> UserDB:
     return await crud_user.get_user_by_id(user_id=user.id)
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope='module')
 async def async_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     async with LifespanManager(app=app):
         async with AsyncClient(app=app, base_url="http://test") as ac:

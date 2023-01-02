@@ -57,7 +57,7 @@ async def update(user_id: UUID4, payload: UserUpdate) -> UserDB | None:
     query = db.users.update() \
         .where(db.users.c.id == user_id) \
         .values(hashed_password=new_hashed_password) \
-        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password)
+        .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password, db.users.c.is_superuser)
 
     user_row = await database.fetch_one(query=query)
     return UserDB(**user_row._mapping) if user_row else None

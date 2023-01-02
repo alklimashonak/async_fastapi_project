@@ -25,3 +25,7 @@ class TestCreateTeam:
         assert new_team.id
         assert new_team.name == team_data.name
         assert new_team.owner_id == test_user.id
+
+
+class TestGetTeamByID:
+    pass
