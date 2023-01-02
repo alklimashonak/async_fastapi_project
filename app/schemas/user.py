@@ -2,14 +2,16 @@ from pydantic import BaseModel, EmailStr, SecretStr, UUID4
 
 
 class UserBase(BaseModel):
-    email: EmailStr | None
+    email: EmailStr | None = None
+    is_superuser: bool = False
 
 
-class UserDB(UserBase):
+class User(UserBase):
     id: UUID4
-    email: EmailStr
+
+
+class UserDB(User):
     hashed_password: str
-    is_superuser: bool
 
 
 class UserCreate(UserBase):
@@ -22,6 +24,6 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    user: UserBase
+    user: User
     access_token: str | None
     token_type: str | None = 'bearer'

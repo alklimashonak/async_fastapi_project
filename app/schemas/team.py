@@ -2,12 +2,16 @@ from pydantic import BaseModel, UUID4, Field
 
 
 class TeamBase(BaseModel):
-    name: str | None
+    name: str | None = Field(max_length=64)
 
 
-class TeamDB(TeamBase):
+class Team(TeamBase):
     id: int
-    name: str = Field(max_length=64)
+    owner_id: UUID4
+
+
+class TeamDB(Team):
+    id: int
     owner_id: UUID4
 
 
@@ -20,4 +24,4 @@ class TeamUpdate(TeamBase):
 
 
 class TeamResponse(BaseModel):
-    team: TeamBase
+    team: Team
