@@ -20,12 +20,16 @@ class UserForResponse(BaseUserDB):
     pass
 
 
+class UserForResponseWithTeams(BaseUserDB):
+    teams: list[TeamForUserResponse]
+
+
 class UserResponse(BaseModel):
     user: UserForResponse
 
 
 class UserWithTeamsResponse(UserResponse):
-    teams: list[TeamForUserResponse]
+    user: UserForResponseWithTeams
 
 
 class UserWithTokenResponse(UserResponse):

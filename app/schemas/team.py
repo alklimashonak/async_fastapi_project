@@ -26,4 +26,4 @@ class TeamCreate(TeamBase):
 
 
 class TeamUpdate(TeamBase):
-    name: str = Field(max_length=64)
+    pass
