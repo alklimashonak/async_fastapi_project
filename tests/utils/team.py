@@ -14,8 +14,12 @@ def get_random_string(length=8):
 
 
 async def create_test_team(
-        owner_id: UUID4
+        owner_id: UUID4,
+        team_name: str | None = None,
 ) -> TeamDB:
-    team_data = TeamCreate(name=get_random_string())
+    if team_name:
+        team_data = TeamCreate(name=team_name)
+    else:
+        team_data = TeamCreate(name=get_random_string())
 
     return await crud_team.create(payload=team_data, owner_id=owner_id)

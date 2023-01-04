@@ -18,7 +18,7 @@ class TestCreateTeamAPI:
             test_user: UserDB,
     ) -> None:
         team_data = {
-            'name': 'New Team'
+            'name': 'Team One'
         }
         token = create_access_token(subject=test_user.email)
         headers = {
@@ -38,7 +38,7 @@ class TestCreateTeamAPI:
             test_user: UserDB
     ) -> None:
         team_data = {
-            'name': 'New Team 2'
+            'name': 'Team Two'
         }
 
         response = await async_client.post('/api/teams/', json=team_data)
@@ -52,11 +52,11 @@ class TestUpdateTeamAPI:
             async_client: AsyncClient,
             test_user: UserDB,
     ) -> None:
-        team = await create_test_team(owner_id=test_user.id)
+        team = await create_test_team(owner_id=test_user.id, team_name='Team Three')
         token = create_access_token(subject=test_user.email)
 
         payload = {
-            'name': 'Updated Team'
+            'name': 'Team Three Updated'
         }
 
         headers = {
@@ -79,11 +79,11 @@ class TestUpdateTeamAPI:
         )
 
         team_payload = {
-            'name': 'New Team Name'
+            'name': 'Team Four Updated'
         }
 
         user = await crud_user.create(payload=user_in)
-        team = await create_test_team(owner_id=test_user.id)
+        team = await create_test_team(owner_id=test_user.id, team_name='Team Four')
         token = create_access_token(subject=user.email)
 
         headers = {
@@ -93,3 +93,38 @@ class TestUpdateTeamAPI:
         response = await async_client.put(f'/api/teams/{team.id}/', json=team_payload, headers=headers)
 
         assert response.status_code == HTTP_403_FORBIDDEN
+
+    @pytest.mark.parametrize(
+        'user_email, team_name, status_code',
+        [
+            ('newuser1@example.com', 'Team Five Updated', 200),
+            ('newuser2@example.com', 'TeamFive'*10, 422)
+        ]
+    )
+    async def test_update_team_validation(
+            self,
+            async_client: AsyncClient,
+            user_email: str,
+            team_name: str,
+            status_code: int
+    ) -> None:
+        user_in = UserCreate(
+            email=EmailStr(user_email),
+            password=SecretStr('1234')
+        )
+
+        team_payload = {
+            'name': team_name
+        }
+
+        user = await crud_user.create(payload=user_in)
+        team = await create_test_team(owner_id=user.id, team_name='Team Five')
+        token = create_access_token(subject=user.email)
+
+        headers = {
+            'Authorization': f'bearer {token}'
+        }
+
+        response = await async_client.put(f'/api/teams/{team.id}/', json=team_payload, headers=headers)
+
+        assert response.status_code == status_code

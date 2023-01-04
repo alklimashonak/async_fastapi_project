@@ -39,7 +39,7 @@ class TestRegisterAPI:
             self,
             async_client: AsyncClient
     ) -> None:
-        email = 'user123@gmail.com'
+        email = 'testuser1@gmail.com'
         password = '1234'
         payload = {
             'email': email,
