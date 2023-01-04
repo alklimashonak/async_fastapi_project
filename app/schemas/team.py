@@ -5,14 +5,20 @@ class TeamBase(BaseModel):
     name: str | None = Field(max_length=64)
 
 
-class Team(TeamBase):
+class TeamForUserResponse(TeamBase):
     id: int
+
+
+class TeamForResponse(TeamForUserResponse):
     owner_id: UUID4
 
 
-class TeamDB(Team):
-    id: int
-    owner_id: UUID4
+class TeamDB(TeamForResponse):
+    pass
+
+
+class TeamResponse(BaseModel):
+    team: TeamForResponse
 
 
 class TeamCreate(TeamBase):
@@ -21,7 +27,3 @@ class TeamCreate(TeamBase):
 
 class TeamUpdate(TeamBase):
     name: str = Field(max_length=64)
-
-
-class TeamResponse(BaseModel):
-    team: Team

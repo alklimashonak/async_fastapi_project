@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, SecretStr, UUID4
 
-from app.schemas.team import TeamDB
+from app.schemas.team import TeamForUserResponse
 
 
 class UserBase(BaseModel):
@@ -16,16 +16,16 @@ class UserDB(BaseUserDB):
     hashed_password: str
 
 
-class UserInResponse(BaseUserDB):
+class UserForResponse(BaseUserDB):
     pass
 
 
 class UserResponse(BaseModel):
-    user: UserInResponse
+    user: UserForResponse
 
 
 class UserWithTeamsResponse(UserResponse):
-    teams: list[TeamDB]
+    teams: list[TeamForUserResponse]
 
 
 class UserWithTokenResponse(UserResponse):
