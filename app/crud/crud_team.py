@@ -36,3 +36,11 @@ async def update(team_id: int, payload: TeamUpdate) -> TeamDB | None:
 
     team_row = await database.fetch_one(query=query)
     return TeamDB(**team_row._mapping) if team_row else None
+
+
+async def get_user_teams(user_id: UUID4) -> list[TeamDB]:
+    query = db.teams.select() \
+        .where(db.teams.c.owner_id == user_id)
+
+    team_rows = await database.fetch_all(query=query)
+    return [TeamDB(**team_row._mapping) for team_row in team_rows]

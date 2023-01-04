@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK
 
 from app.core.security import create_access_token
 from app.schemas.user import UserDB
@@ -20,8 +21,8 @@ class TestGetCurrentUserAPI:
         response = await async_client.get('/api/users/me/', headers=headers)
 
         assert response.status_code == 200
-        assert response.json()['id'] == str(test_user.id)
-        assert response.json()['email'] == test_user.email
+        assert response.json()['user']['id'] == str(test_user.id)
+        assert response.json()['user']['email'] == test_user.email
 
     async def test_get_current_user_api_unauthorized_raise_401(
             self,
@@ -30,7 +31,7 @@ class TestGetCurrentUserAPI:
     ) -> None:
         response = await async_client.get('/api/users/me/')
 
-        assert response.status_code == 401
+        assert response.status_code == HTTP_401_UNAUTHORIZED
 
 
 class TestRegisterAPI:
@@ -47,7 +48,7 @@ class TestRegisterAPI:
 
         response = await async_client.post('/api/auth/register/', json=payload)
 
-        assert response.status_code == 200
+        assert response.status_code == HTTP_200_OK
         assert response.json()['user']['email'] == email
         assert response.json()['access_token']
 
@@ -72,4 +73,4 @@ class TestLoginAPI:
 
         response = await async_client.post('/api/auth/login/', headers=headers, data=payload)
 
-        assert response.status_code == 401
+        assert response.status_code == HTTP_401_UNAUTHORIZED

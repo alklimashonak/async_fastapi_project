@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends
 
 from app.api.dependencies import get_current_user
 from app.crud import crud_user
-from app.schemas.user import UserDB
+from app.crud.crud_team import get_user_teams
+from app.schemas.user import UserDB, UserWithTeamsResponse, UserInResponse
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,11 @@ async def get_users():
     return await crud_user.get_users()
 
 
-@router.get('/me/', response_model=UserDB)
+@router.get('/me/', response_model=UserWithTeamsResponse)
 async def get_current_user(user: UserDB = Depends(get_current_user)):
-    return user
+    user_teams = await get_user_teams(user_id=user.id)
+
+    return UserWithTeamsResponse(
+        user=UserInResponse(**user.dict()),
+        teams=user_teams
+    )

@@ -5,32 +5,32 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.core.security import create_access_token
 from app.crud import crud_user
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserWithTokenResponse, UserInResponse
 
 router = APIRouter()
 
 
-@router.post('/register/', response_model=UserResponse)
+@router.post('/register/', response_model=UserWithTokenResponse)
 async def register(
         user_in: UserCreate
 ):
     user = await crud_user.create(payload=user_in)
 
     token = create_access_token(subject=str(user.id))
-    return UserResponse(
-        user=user,
+    return UserWithTokenResponse(
+        user=UserInResponse(**user.dict()),
         access_token=token,
     )
 
 
-@router.post('/login/', response_model=UserResponse)
+@router.post('/login/', response_model=UserWithTokenResponse)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await crud_user.authenticate(email=form_data.username, password=SecretStr(form_data.password))
     if not user:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
     token = create_access_token(subject=user.email)
-    return UserResponse(
-        user=user,
+    return UserWithTokenResponse(
+        user=UserInResponse(**user.dict()),
         access_token=token,
     )
