@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import SecretStr
-from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from app.core.security import create_access_token
 from app.crud import crud_user
@@ -14,6 +14,12 @@ router = APIRouter()
 async def register(
         user_in: UserCreate
 ):
+    user = await crud_user.get_user_by_email(email=user_in.email)
+    if user:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="The user with this email already exists in the system.",
+        )
     user = await crud_user.create(payload=user_in)
 
     token = create_access_token(subject=str(user.id))
@@ -27,7 +33,7 @@ async def register(
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await crud_user.authenticate(email=form_data.username, password=SecretStr(form_data.password))
     if not user:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
     token = create_access_token(subject=user.email)
     return UserWithTokenResponse(

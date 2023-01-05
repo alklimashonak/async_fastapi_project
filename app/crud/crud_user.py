@@ -14,12 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 async def create(payload: UserCreate) -> UserDB | None:
-    user_db = await get_user_by_email(email=payload.email)
-    if user_db:
-        raise HTTPException(
-            status_code=HTTP_400_BAD_REQUEST,
-            detail="The user with this email already exists in the system.",
-        )
     query = db.users.insert() \
         .values(
             id=uuid.uuid4(),

@@ -83,22 +83,6 @@ class TestCreateUser:
 
         assert new_user.email == user_data.email
 
-    async def test_cant_create_user_if_email_already_exists(
-            self,
-            async_client: AsyncClient,
-            test_user: UserDB,
-    ) -> None:
-        user_data = UserCreate(
-            email=test_user.email,
-            password=SecretStr('1234'),
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            await crud_user.create(payload=user_data)
-
-        assert exc_info.value.status_code == 400
-        assert 'already exists' in exc_info.value.detail
-
 
 class TestAuthenticateUser:
     async def test_authentication_success(

@@ -5,11 +5,11 @@ from app.schemas.team import TeamForUserResponse
 
 class UserBase(BaseModel):
     email: EmailStr | None = None
-    is_superuser: bool = False
 
 
 class BaseUserDB(UserBase):
     id: UUID4
+    is_superuser: bool = False
 
 
 class UserDB(BaseUserDB):

@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 from app.core.security import create_access_token
 from app.schemas.user import UserDB
@@ -52,9 +52,23 @@ class TestRegisterAPI:
         assert response.json()['user']['email'] == email
         assert response.json()['access_token']
 
+    async def test_register_api_raise_400_if_email_already_exists(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        payload = {
+            'email': test_user.email,
+            'password': '1234',
+        }
+        response = await async_client.post('/api/auth/register/', json=payload)
+
+        assert response.status_code == HTTP_400_BAD_REQUEST
+        assert response.json()['detail'] == 'The user with this email already exists in the system.'
+
 
 class TestLoginAPI:
-    async def test_failed_login_raise_401(
+    async def test_failed_login_raise_400(
             self,
             async_client: AsyncClient,
             test_user: UserDB,
@@ -73,4 +87,5 @@ class TestLoginAPI:
 
         response = await async_client.post('/api/auth/login/', headers=headers, data=payload)
 
-        assert response.status_code == HTTP_401_UNAUTHORIZED
+        assert response.status_code == HTTP_400_BAD_REQUEST
+        assert response.json()['detail'] == 'Incorrect email or password'
