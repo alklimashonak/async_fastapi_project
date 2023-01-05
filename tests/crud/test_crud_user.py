@@ -2,7 +2,6 @@ import logging
 import uuid
 
 import pytest
-from fastapi import HTTPException
 from httpx import AsyncClient
 from pydantic import EmailStr, SecretStr
 
