@@ -1,2 +1,5 @@
 TEST_USER_EMAIL = 'testuser@mail.com'
 TEST_USER_PASSWORD = '1234'
+
+TEST_SUPERUSER_EMAIL = 'testadmin@mail.com'
+TEST_SUPERUSER_PASSWORD = '1234'

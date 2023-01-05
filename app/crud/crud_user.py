@@ -11,12 +11,13 @@ from app.schemas.user import UserCreate, UserDB, UserUpdate
 logger = logging.getLogger(__name__)
 
 
-async def create(user_in: UserCreate) -> UserDB | None:
+async def create(user_in: UserCreate, is_superuser: bool = False) -> UserDB | None:
     query = db.users.insert() \
         .values(
             id=uuid.uuid4(),
             email=user_in.email,
             hashed_password=get_password_hash(user_in.password),
+            is_superuser=is_superuser,
         ) \
         .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password, db.users.c.is_superuser)
 
