@@ -50,7 +50,7 @@ class TestCreateTeamAPI:
             async_client: AsyncClient,
     ) -> None:
         user_data = UserCreate(email=EmailStr('testuser1@example.com'), password=SecretStr('1234'))
-        user = await crud_user.create(payload=user_data)
+        user = await crud_user.create(user_in=user_data)
         token = create_access_token(subject=user.email)
         headers = {
             'Authorization': f'bearer {token}'
@@ -103,7 +103,7 @@ class TestUpdateTeamAPI:
             'name': 'Team Four Updated'
         }
 
-        user = await crud_user.create(payload=user_in)
+        user = await crud_user.create(user_in=user_in)
         team = await create_test_team(owner_id=test_user.id, team_name='Team Four')
         token = create_access_token(subject=user.email)
 
@@ -138,7 +138,7 @@ class TestUpdateTeamAPI:
             'name': team_name
         }
 
-        user = await crud_user.create(payload=user_in)
+        user = await crud_user.create(user_in=user_in)
         team = await create_test_team(owner_id=user.id, team_name='Team Five')
         token = create_access_token(subject=user.email)
 

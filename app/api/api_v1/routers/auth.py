@@ -20,7 +20,7 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system.",
         )
-    user = await crud_user.create(payload=user_in)
+    user = await crud_user.create(user_in=user_in)
 
     token = create_access_token(subject=str(user.id))
     return UserWithTokenResponse(

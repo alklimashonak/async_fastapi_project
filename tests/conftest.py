@@ -61,7 +61,7 @@ async def test_user() -> UserDB:
         email=EmailStr(TEST_USER_EMAIL),
         password=SecretStr(TEST_USER_PASSWORD),
     )
-    user = await crud_user.create(payload=user_data)
+    user = await crud_user.create(user_in=user_data)
 
     return await crud_user.get_user_by_id(user_id=user.id)
 

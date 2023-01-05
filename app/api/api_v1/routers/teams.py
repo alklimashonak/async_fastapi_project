@@ -19,7 +19,7 @@ async def create_team(
     if len(user_teams) > 2:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User can't have more than 3 teams")
 
-    team = await crud_team.create(payload=team_in, owner_id=current_user.id)
+    team = await crud_team.create(team_in=team_in, owner_id=current_user.id)
     return TeamResponse(team=team)
 
 
@@ -34,5 +34,5 @@ async def update_team(
     if team_to_update.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User can update only his own teams')
 
-    new_team = await crud_team.update(team_id=team_id, payload=team_in)
+    new_team = await crud_team.update(team_id=team_id, team_in=team_in)
     return TeamResponse(team=new_team)

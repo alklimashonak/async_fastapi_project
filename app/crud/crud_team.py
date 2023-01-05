@@ -6,12 +6,12 @@ from app.schemas.team import TeamCreate, TeamDB, TeamUpdate
 
 
 async def create(
-        payload: TeamCreate,
+        team_in: TeamCreate,
         owner_id: UUID4
 ) -> TeamDB | None:
     query = db.teams.insert() \
         .values(
-            name=payload.name,
+            name=team_in.name,
             owner_id=owner_id,
         ) \
         .returning(db.teams.c.id, db.teams.c.name, db.teams.c.owner_id)
@@ -28,10 +28,10 @@ async def get_team_by_id(team_id: int) -> TeamDB | None:
     return TeamDB(**team_row._mapping) if team_row else None
 
 
-async def update(team_id: int, payload: TeamUpdate) -> TeamDB | None:
+async def update(team_id: int, team_in: TeamUpdate) -> TeamDB | None:
     query = db.teams.update() \
         .where(db.teams.c.id == team_id) \
-        .values(name=payload.name) \
+        .values(name=team_in.name) \
         .returning(db.teams.c.id, db.teams.c.name, db.teams.c.owner_id)
 
     team_row = await database.fetch_one(query=query)

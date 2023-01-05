@@ -78,7 +78,7 @@ class TestCreateUser:
             password=SecretStr('1234'),
         )
 
-        new_user = await crud_user.create(payload=user_data)
+        new_user = await crud_user.create(user_in=user_data)
 
         assert new_user.email == user_data.email
 
@@ -131,7 +131,7 @@ class TestUpdateUser:
         new_password = SecretStr('12345678')
         update_data = UserUpdate(password=new_password)
 
-        user = await crud_user.update(user_id=test_user.id, payload=update_data)
+        user = await crud_user.update(user_id=test_user.id, user_in=update_data)
         authenticated_user = await crud_user.authenticate(email=test_user.email, password=new_password)
 
         assert user.id

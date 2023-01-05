@@ -27,3 +27,20 @@ teams = sqlalchemy.Table(
     Column('name', String(64), nullable=False),
     Column('owner_id', UUID, ForeignKey('users.id', ondelete='CASCADE'))
 )
+
+
+drivers = sqlalchemy.Table(
+    'drivers',
+    metadata,
+    sqlalchemy.Column('id', Integer, primary_key=True),
+    sqlalchemy.Column('first_name', sqlalchemy.String(64), nullable=False),
+    sqlalchemy.Column('last_name', sqlalchemy.String(64), nullable=False),
+    sqlalchemy.Column('short_name', sqlalchemy.String(3), nullable=False, unique=True)
+)
+
+drivers_teams = sqlalchemy.Table(
+    'drivers_teams',
+    metadata,
+    sqlalchemy.Column('driver_id', sqlalchemy.ForeignKey('drivers.id', ondelete='CASCADE')),
+    sqlalchemy.Column('team_id', sqlalchemy.ForeignKey('teams.id', ondelete='CASCADE'))
+)

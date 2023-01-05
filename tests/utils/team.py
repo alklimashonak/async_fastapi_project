@@ -22,4 +22,4 @@ async def create_test_team(
     else:
         team_data = TeamCreate(name=get_random_string())
 
-    return await crud_team.create(payload=team_data, owner_id=owner_id)
+    return await crud_team.create(team_in=team_data, owner_id=owner_id)

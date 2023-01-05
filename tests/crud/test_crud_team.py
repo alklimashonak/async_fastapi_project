@@ -21,7 +21,7 @@ class TestCreateTeam:
     ) -> None:
         team_data = TeamCreate(name='Test Team')
 
-        new_team = await crud_team.create(payload=team_data, owner_id=test_user.id)
+        new_team = await crud_team.create(team_in=team_data, owner_id=test_user.id)
 
         assert new_team.id
         assert new_team.name == team_data.name
@@ -59,7 +59,7 @@ class TestUpdateTeam:
 
         test_team = await create_test_team(owner_id=test_user.id)
 
-        updated_team = await crud_team.update(team_id=test_team.id, payload=update_data)
+        updated_team = await crud_team.update(team_id=test_team.id, team_in=update_data)
 
         assert updated_team.name == update_data.name
         assert test_team.id == updated_team.id

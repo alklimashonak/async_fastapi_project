@@ -1,9 +1,7 @@
 import logging
 import uuid
 
-from fastapi import HTTPException
 from pydantic import UUID4, SecretStr
-from starlette.status import HTTP_400_BAD_REQUEST
 
 from app import db
 from app.core.security import get_password_hash, verify_password
@@ -13,12 +11,12 @@ from app.schemas.user import UserCreate, UserDB, UserUpdate
 logger = logging.getLogger(__name__)
 
 
-async def create(payload: UserCreate) -> UserDB | None:
+async def create(user_in: UserCreate) -> UserDB | None:
     query = db.users.insert() \
         .values(
             id=uuid.uuid4(),
-            email=payload.email,
-            hashed_password=get_password_hash(payload.password),
+            email=user_in.email,
+            hashed_password=get_password_hash(user_in.password),
         ) \
         .returning(db.users.c.id, db.users.c.email, db.users.c.hashed_password, db.users.c.is_superuser)
 
@@ -45,8 +43,8 @@ async def get_users() -> list[UserDB]:
     return [UserDB(**user._mapping) for user in users]
 
 
-async def update(user_id: UUID4, payload: UserUpdate) -> UserDB | None:
-    new_hashed_password = get_password_hash(password=payload.password)
+async def update(user_id: UUID4, user_in: UserUpdate) -> UserDB | None:
+    new_hashed_password = get_password_hash(password=user_in.password)
 
     query = db.users.update() \
         .where(db.users.c.id == user_id) \
