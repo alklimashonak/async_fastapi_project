@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
+from starlette import status
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.core.config import settings
@@ -27,3 +28,11 @@ async def get_current_user(
     if not user:
         raise credentials_exception
     return user
+
+
+async def get_current_superuser(
+        current_user: UserDB = Depends(get_current_user),
+) -> UserDB:
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The user doesn't have enough privileges")
+    return current_user
