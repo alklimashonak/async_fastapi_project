@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 from pydantic import EmailStr, SecretStr
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_403_FORBIDDEN
+from starlette import status
 
 from app.core.security import create_access_token
 from app.crud import crud_user
@@ -27,7 +27,7 @@ class TestCreateTeamAPI:
 
         response = await async_client.post('/api/teams/', json=team_data, headers=headers)
 
-        assert response.status_code == HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()['team']['id']
         assert response.json()['team']['name'] == team_data.get('name')
         assert response.json()['team']['owner_id'] == str(test_user.id)
@@ -43,7 +43,28 @@ class TestCreateTeamAPI:
 
         response = await async_client.post('/api/teams/', json=team_data)
 
-        assert response.status_code == HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    async def test_user_cant_create_team_if_already_has_3(
+            self,
+            async_client: AsyncClient,
+    ) -> None:
+        user_data = UserCreate(email=EmailStr('testuser1@example.com'), password=SecretStr('1234'))
+        user = await crud_user.create(payload=user_data)
+        token = create_access_token(subject=user.email)
+        headers = {
+            'Authorization': f'bearer {token}'
+        }
+        await create_test_team(owner_id=user.id)
+        await create_test_team(owner_id=user.id)
+        await create_test_team(owner_id=user.id)
+
+        team_in = {'name': 'Team Three'}
+
+        response = await async_client.post('/api/teams/', json=team_in, headers=headers)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()['detail'] == "User can't have more than 3 teams"
 
 
 class TestUpdateTeamAPI:
@@ -65,7 +86,7 @@ class TestUpdateTeamAPI:
 
         response = await async_client.put(f'/api/teams/{team.id}/', json=payload, headers=headers)
 
-        assert response.status_code == HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()['team']['name'] == payload.get('name')
 
     async def test_user_cant_update_not_his_own_team(
@@ -74,7 +95,7 @@ class TestUpdateTeamAPI:
             test_user: UserDB,
     ) -> None:
         user_in = UserCreate(
-            email=EmailStr('someuser@example.com'),
+            email=EmailStr('testuser2@example.com'),
             password=SecretStr('1234')
         )
 
@@ -92,7 +113,7 @@ class TestUpdateTeamAPI:
 
         response = await async_client.put(f'/api/teams/{team.id}/', json=team_payload, headers=headers)
 
-        assert response.status_code == HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.parametrize(
         'user_email, team_name, status_code',
