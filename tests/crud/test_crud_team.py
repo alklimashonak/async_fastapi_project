@@ -19,12 +19,12 @@ class TestCreateTeam:
             async_client: AsyncClient,
             test_user: UserDB,
     ) -> None:
-        team_data = TeamCreate(name='Test Team')
+        team_in = TeamCreate(name='Test Team')
 
-        new_team = await crud_team.create(team_in=team_data, owner_id=test_user.id)
+        new_team = await crud_team.create(team_in=team_in, owner_id=test_user.id)
 
         assert new_team.id
-        assert new_team.name == team_data.name
+        assert new_team.name == team_in.name
         assert new_team.owner_id == test_user.id
 
 

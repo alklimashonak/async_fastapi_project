@@ -7,7 +7,7 @@ class DriverBase(BaseModel):
     short_name: str | None = None
 
 
-class DriverForTeamResponse(BaseModel):
+class DriverForTeamResponse(DriverBase):
     id: int
 
 
