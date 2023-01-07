@@ -15,8 +15,11 @@ async def create(
             owner_id=owner_id,
         ) \
         .returning(db.teams.c.id, db.teams.c.name, db.teams.c.owner_id)
-
     team_row = await database.fetch_one(query=query)
+
+    for pick in team_in.picks:
+        await add_driver(team_id=team_row.id, driver_id=pick)
+
     return TeamDB(**team_row._mapping) if team_row else None
 
 
@@ -44,3 +47,13 @@ async def get_user_teams(user_id: UUID4) -> list[TeamDB]:
 
     team_rows = await database.fetch_all(query=query)
     return [TeamDB(**team_row._mapping) for team_row in team_rows]
+
+
+async def add_driver(team_id: int, driver_id: int) -> None:
+    query = db.drivers_teams.insert() \
+        .values(
+            team_id=team_id,
+            driver_id=driver_id,
+        ) \
+        .returning(db.drivers_teams.c.driver_id)
+    await database.execute(query=query)
