@@ -22,7 +22,7 @@ class DriverDB(DriverForTeamResponse):
 class DriverCreate(DriverBase):
     first_name: str = Field(max_length=64)
     last_name: str = Field(max_length=64)
-    short_name: str = Field(max_length=3)
+    short_name: str = Field(max_length=5)
 
 
 class DriverUpdate(DriverBase):
