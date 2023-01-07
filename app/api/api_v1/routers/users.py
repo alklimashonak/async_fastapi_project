@@ -23,7 +23,9 @@ async def get_current_user(user: UserDB = Depends(get_current_user)):
 
     return UserWithTeamsResponse(
         user=UserForResponseWithTeams(
-            **user.dict(),
+            id=user.id,
+            email=user.email,
+            is_superuser=user.is_superuser,
             teams=user_teams
         ),
     )
