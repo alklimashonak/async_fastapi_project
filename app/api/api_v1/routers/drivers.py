@@ -9,6 +9,12 @@ from app.schemas.user import UserDB
 router = APIRouter()
 
 
+@router.get('/', response_model=list[DriverResponse])
+async def get_drivers() -> list[DriverResponse]:
+    drivers = await crud_driver.get_drivers()
+    return [DriverResponse(**driver.dict()) for driver in drivers]
+
+
 @router.post('/', response_model=DriverResponse, status_code=status.HTTP_201_CREATED)
 async def create_driver(
         driver_in: DriverCreate,
