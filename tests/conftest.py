@@ -12,8 +12,6 @@ from httpx import AsyncClient
 from pydantic import EmailStr, SecretStr
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from tests.utils.user import TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_SUPERUSER_EMAIL, TEST_SUPERUSER_PASSWORD
-
 environ["TESTING"] = "True"
 
 from app.core.config import settings
@@ -58,8 +56,8 @@ async def app() -> FastAPI:
 @pytest.fixture(scope='module')
 async def test_user() -> UserDB:
     user_data = UserCreate(
-        email=EmailStr(TEST_USER_EMAIL),
-        password=SecretStr(TEST_USER_PASSWORD),
+        email=EmailStr(settings.TEST_USER_EMAIL),
+        password=SecretStr(settings.TEST_USER_PASSWORD),
     )
     user = await crud_user.create(user_in=user_data)
 
@@ -69,8 +67,8 @@ async def test_user() -> UserDB:
 @pytest.fixture(scope='module')
 async def test_superuser() -> UserDB:
     user_data = UserCreate(
-        email=EmailStr(TEST_SUPERUSER_EMAIL),
-        password=SecretStr(TEST_SUPERUSER_PASSWORD),
+        email=EmailStr(settings.TEST_SUPERUSER_EMAIL),
+        password=SecretStr(settings.TEST_SUPERUSER_PASSWORD),
     )
     user = await crud_user.create(user_in=user_data, is_superuser=True)
 

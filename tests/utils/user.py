@@ -30,6 +30,4 @@ async def create_test_user(
         password=password,
     )
 
-    logger.warning(f'{email}')
-
     return await crud_user.create(user_in=user_in, is_superuser=is_superuser)

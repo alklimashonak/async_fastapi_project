@@ -2,7 +2,7 @@ import pytest
 from fastapi import HTTPException
 from httpx import AsyncClient
 
-from app.api.dependencies import get_current_user, get_current_superuser
+from app.api.dependencies import get_current_user
 from app.core.security import create_access_token
 from app.schemas.user import UserDB
 

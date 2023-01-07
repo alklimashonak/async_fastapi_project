@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from app.crud import crud_team
 from app.schemas.team import TeamCreate, TeamUpdate
 from app.schemas.user import UserDB
+from tests.utils.driver import create_test_driver
 from tests.utils.team import create_test_team
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,10 @@ class TestCreateTeam:
             async_client: AsyncClient,
             test_user: UserDB,
     ) -> None:
-        team_in = TeamCreate(name='Test Team')
+        drivers = [await create_test_driver() for _ in range(5)]
+        drivers_ids = {driver.id for driver in drivers}
+
+        team_in = TeamCreate(name='Test Team', picks=drivers_ids)
 
         new_team = await crud_team.create(team_in=team_in, owner_id=test_user.id)
 

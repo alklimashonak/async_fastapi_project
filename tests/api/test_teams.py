@@ -6,6 +6,7 @@ from starlette import status
 from app.core.security import create_access_token
 from app.crud import crud_user
 from app.schemas.user import UserDB, UserCreate
+from tests.utils.driver import create_test_driver
 from tests.utils.team import create_test_team
 
 pytestmark = pytest.mark.anyio
@@ -17,8 +18,12 @@ class TestCreateTeamAPI:
             async_client: AsyncClient,
             test_user: UserDB,
     ) -> None:
+        drivers = [await create_test_driver() for _ in range(5)]
+        drivers_ids = [driver.id for driver in drivers]
+
         team_data = {
-            'name': 'Team One'
+            'name': 'Team One',
+            'picks': drivers_ids,
         }
         token = create_access_token(subject=test_user.email)
         headers = {
@@ -55,11 +60,18 @@ class TestCreateTeamAPI:
         headers = {
             'Authorization': f'bearer {token}'
         }
+
+        drivers = [await create_test_driver() for _ in range(5)]
+        drivers_ids = [driver.id for driver in drivers]
+
         await create_test_team(owner_id=user.id)
         await create_test_team(owner_id=user.id)
         await create_test_team(owner_id=user.id)
 
-        team_in = {'name': 'Team Three'}
+        team_in = {
+            'name': 'Team Three',
+            'picks': drivers_ids,
+        }
 
         response = await async_client.post('/api/teams/', json=team_in, headers=headers)
 

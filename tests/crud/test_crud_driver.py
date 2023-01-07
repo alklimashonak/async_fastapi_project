@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.crud import crud_driver
-from app.schemas.driver import DriverDB, DriverCreate, DriverUpdate
+from app.schemas.driver import DriverCreate, DriverUpdate
 
 pytestmark = pytest.mark.anyio
 
