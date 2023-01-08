@@ -80,19 +80,32 @@ class TestRegisterAPI:
 
 
 class TestLoginAPI:
+    async def test_success_login_returns_access_token(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        payload = {
+            'username': TEST_USER_EMAIL,
+            'password': TEST_USER_PASSWORD,
+        }
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        response = await async_client.post('/api/auth/login/', headers=headers, data=payload)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['access_token']
+
     async def test_failed_login_raise_400(
             self,
             async_client: AsyncClient,
             test_user: UserDB,
     ) -> None:
-        email = TEST_USER_EMAIL
-        password = TEST_USER_PASSWORD + 'qwe'
-
         payload = {
-            'username': email,
-            'password': password,
+            'username': TEST_USER_EMAIL,
+            'password': TEST_USER_PASSWORD + 'qwe',
         }
-
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
         }
