@@ -47,6 +47,15 @@ async def update(team_id: int, team_in: TeamUpdate) -> TeamDB | None:
     return TeamDB(**team_row._mapping) if team_row else None
 
 
+async def delete_team(team_id: int) -> TeamDB | None:
+    query = db.teams.delete() \
+        .where(db.teams.c.id == team_id) \
+        .returning(db.teams.c.id, db.teams.c.name, db.teams.c.owner_id)
+
+    team_row = await database.fetch_one(query=query)
+    return TeamDB(**team_row._mapping)
+
+
 async def get_user_teams(user_id: UUID4) -> list[TeamDB]:
     query = db.teams.select() \
         .where(db.teams.c.owner_id == user_id)

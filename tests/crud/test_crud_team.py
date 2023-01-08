@@ -71,6 +71,18 @@ class TestUpdateTeam:
         assert test_team.id == updated_team.id
 
 
+class TestDeleteTeam:
+    async def test_delete_team_works(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+
+        await crud_team.delete_team(team_id=team.id)
+
+        user_teams = await crud_team.get_user_teams(user_id=user.id)
+
+        assert team not in user_teams
+
+
 class TestGetUserTeams:
     async def test_get_user_teams_works(self) -> None:
         user = await create_test_user()

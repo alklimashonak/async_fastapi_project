@@ -78,5 +78,28 @@ async def update_team(
     )
 
 
+@router.delete('/{team_id}/', response_model=TeamResponse)
+async def delete_team(
+        team_id: int,
+        current_user: UserDB = Depends(get_current_user),
+) -> TeamResponse:
+    team_to_delete = await crud_team.get_team_by_id(team_id=team_id)
+    team_drivers = await crud_driver.get_team_drivers(team_id=team_id)
+
+    if team_to_delete.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User can delete only his own teams')
+
+    deleted_team = await crud_team.delete_team(team_id=team_id)
+
+    return TeamResponse(
+        team=TeamForResponse(
+            id=deleted_team.id,
+            name=deleted_team.name,
+            owner_id=deleted_team.owner_id,
+            drivers=team_drivers,
+        )
+    )
+
+
 def gen_drivers_for_team_response(drivers: list[DriverDB]) -> list[DriverForTeamResponse]:
     return [DriverForTeamResponse(**driver.dict()) for driver in drivers]

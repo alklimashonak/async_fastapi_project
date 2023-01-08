@@ -176,3 +176,44 @@ class TestUpdateTeamAPI:
         response = await async_client.put(f'/api/teams/{team.id}/', json=team_payload, headers=headers)
 
         assert response.status_code == status_code
+
+
+class TestDeleteTeamAPI:
+    async def test_user_can_delete_his_own_team(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        team = await create_test_team(owner_id=test_user.id, team_name='Team Six')
+        token = create_access_token(subject=test_user.email)
+
+        headers = {
+            'Authorization': f'bearer {token}'
+        }
+
+        response = await async_client.delete(f'/api/teams/{team.id}/', headers=headers)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['team']['name'] == team.name
+
+    async def test_user_cant_delete_not_his_own_team(
+            self,
+            async_client: AsyncClient,
+            test_user: UserDB,
+    ) -> None:
+        user_in = UserCreate(
+            email=EmailStr('testuser3@example.com'),
+            password=SecretStr('1234')
+        )
+
+        user = await crud_user.create(user_in=user_in)
+        team = await create_test_team(owner_id=test_user.id, team_name='Team Seven')
+        token = create_access_token(subject=user.email)
+
+        headers = {
+            'Authorization': f'bearer {token}'
+        }
+
+        response = await async_client.delete(f'/api/teams/{team.id}/', headers=headers)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
