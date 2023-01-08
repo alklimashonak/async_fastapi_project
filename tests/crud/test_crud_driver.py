@@ -3,6 +3,9 @@ from httpx import AsyncClient
 
 from app.crud import crud_driver
 from app.schemas.driver import DriverCreate, DriverUpdate
+from tests.utils.driver import create_test_driver
+from tests.utils.team import create_test_team
+from tests.utils.user import create_test_user
 
 pytestmark = pytest.mark.anyio
 
@@ -26,6 +29,20 @@ class TestCreateDriver:
         assert driver.last_name == driver_in.last_name
 
 
+class TestGetDrivers:
+    async def test_get_drivers_works(self) -> None:
+        drivers = await crud_driver.get_drivers()
+
+        assert len(drivers) == 1
+
+    async def test_get_drivers_by_ids_works(self) -> None:
+        driver = await create_test_driver()
+        drivers = await crud_driver.get_drivers_by_ids([driver.id, 2000, 2001, 2002, 2003])
+
+        assert len(drivers) == 1
+        assert driver in drivers
+
+
 class TestGetDriverByID:
     async def test_get_driver_by_existing_id_returns_driver(self) -> None:
         driver_in = DriverCreate(
@@ -45,6 +62,16 @@ class TestGetDriverByID:
         driver = await crud_driver.get_driver_by_id(driver_id=21312)
 
         assert not driver
+
+
+class TestGetTeamDrivers:
+    async def test_get_team_drivers_works(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+
+        drivers = await crud_driver.get_team_drivers(team_id=team.id)
+
+        assert len(drivers) == 5
 
 
 class TestUpdateDriver:

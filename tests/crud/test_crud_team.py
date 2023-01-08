@@ -3,11 +3,12 @@ import logging
 import pytest
 from httpx import AsyncClient
 
-from app.crud import crud_team
+from app.crud import crud_team, crud_driver
 from app.schemas.team import TeamCreate, TeamUpdate
 from app.schemas.user import UserDB
 from tests.utils.driver import create_test_driver
 from tests.utils.team import create_test_team
+from tests.utils.user import create_test_user
 
 logger = logging.getLogger(__name__)
 
@@ -67,3 +68,27 @@ class TestUpdateTeam:
 
         assert updated_team.name == update_data.name
         assert test_team.id == updated_team.id
+
+
+class TestGetUserTeams:
+    async def test_get_user_teams_works(self) -> None:
+        user = await create_test_user()
+        team1, team2 = await create_test_team(owner_id=user.id), await create_test_team(owner_id=user.id)
+
+        user_teams = await crud_team.get_user_teams(user_id=user.id)
+
+        assert len(user_teams) == 2
+        assert team1 in user_teams and team2 in user_teams
+
+
+class TestAddDriverToTeam:
+    async def test_add_driver_works(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+        driver = await create_test_driver()
+
+        await crud_team.add_driver(team_id=team.id, driver_id=driver.id)
+
+        drivers = await crud_driver.get_team_drivers(team_id=team.id)
+
+        assert len(drivers) == 6
