@@ -8,8 +8,23 @@ from app.crud import crud_user
 from app.schemas.user import UserDB, UserCreate
 from tests.utils.driver import create_test_driver
 from tests.utils.team import create_test_team
+from tests.utils.user import create_test_user
 
 pytestmark = pytest.mark.anyio
+
+
+class TestGetTeamAPI:
+    async def test_get_team_by_id_works(
+            self,
+            async_client: AsyncClient,
+    ) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+
+        response = await async_client.get(f'/api/teams/{team.id}/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['team']['name'] == team.name
 
 
 class TestCreateTeamAPI:

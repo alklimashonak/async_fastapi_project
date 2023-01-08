@@ -34,6 +34,18 @@ class TestGetCurrentUserAPI:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
+class TestGetUsersAPI:
+    async def test_get_users_api_works(
+            self,
+            async_client: AsyncClient,
+    ) -> None:
+        response = await async_client.get('/api/users/')
+        users = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(users) == 1
+
+
 class TestRegisterAPI:
     async def test_register_api_returns_user_info_with_token(
             self,
