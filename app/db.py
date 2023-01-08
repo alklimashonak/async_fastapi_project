@@ -35,7 +35,7 @@ drivers = sqlalchemy.Table(
     sqlalchemy.Column('id', Integer, primary_key=True),
     sqlalchemy.Column('first_name', sqlalchemy.String(64), nullable=False),
     sqlalchemy.Column('last_name', sqlalchemy.String(64), nullable=False),
-    sqlalchemy.Column('short_name', sqlalchemy.String(5), nullable=False, unique=True),
+    sqlalchemy.Column('short_name', sqlalchemy.String(5), nullable=False),
 )
 
 drivers_teams = sqlalchemy.Table(
