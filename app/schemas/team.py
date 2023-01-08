@@ -29,5 +29,10 @@ class TeamCreate(TeamBase):
     picks: set[int] = Field(min_items=5, max_items=5)
 
 
+class Transfer(BaseModel):
+    driver_out: int
+    driver_in: int
+
+
 class TeamUpdate(TeamBase):
-    pass
+    transfers: list[Transfer] = Field(max_items=5, default=[])

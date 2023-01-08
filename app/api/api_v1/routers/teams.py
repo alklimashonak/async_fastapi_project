@@ -62,12 +62,12 @@ async def update_team(
 ) -> TeamResponse:
     team_to_update = await crud_team.get_team_by_id(team_id=team_id)
 
-    drivers = await crud_driver.get_team_drivers(team_id=team_id)
-
     if team_to_update.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User can update only his own teams')
 
     new_team = await crud_team.update(team_id=team_id, team_in=team_in)
+    drivers = await crud_driver.get_team_drivers(team_id=team_id)
+
     return TeamResponse(
         team=TeamForResponse(
             id=new_team.id,

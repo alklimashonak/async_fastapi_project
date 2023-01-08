@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+from fastapi import HTTPException
 from httpx import AsyncClient
 
 from app.crud import crud_team, crud_driver
@@ -93,3 +94,59 @@ class TestAddDriverToTeam:
 
         assert len(drivers) == 6
         assert driver in drivers
+
+
+class TestRemoveDriverFromTeam:
+    async def test_remove_driver_works(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+        driver = await create_test_driver()
+
+        await crud_team.add_driver(team_id=team.id, driver_id=driver.id)
+        removed = await crud_team.remove_driver(team_id=team.id, driver_id=driver.id)
+
+        drivers = await crud_driver.get_team_drivers(team_id=team.id)
+
+        assert removed
+        assert removed == driver.id
+        assert len(drivers) == 5
+        assert driver not in drivers
+
+
+class TestMakeTransfer:
+    async def test_make_correct_transfer(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+
+        drivers_before = await crud_driver.get_team_drivers(team_id=team.id)
+        driver_to_remove = drivers_before[0]
+        driver_to_add = await create_test_driver()
+
+        await crud_team.make_transfer(team_id=team.id, driver_out_id=driver_to_remove.id, driver_in_id=driver_to_add.id)
+
+        drivers_after = await crud_driver.get_team_drivers(team_id=team.id)
+
+        assert driver_to_remove not in drivers_after
+        assert driver_to_add in drivers_after
+
+    async def test_make_transfer_with_non_existed_driver_or_team_raise_exception(self) -> None:
+        user = await create_test_user()
+        team = await create_test_team(owner_id=user.id)
+
+        drivers_before = await crud_driver.get_team_drivers(team_id=team.id)
+        driver_to_remove = drivers_before[0]
+        driver_to_add = await create_test_driver()
+
+        with pytest.raises(HTTPException):
+            await crud_team.make_transfer(
+                team_id=team.id,
+                driver_out_id=driver_to_remove.id,
+                driver_in_id=12345
+            )
+
+        with pytest.raises(HTTPException):
+            await crud_team.make_transfer(
+                team_id=1234,
+                driver_out_id=driver_to_remove.id,
+                driver_in_id=driver_to_add.id
+            )
