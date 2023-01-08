@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.crud import crud_driver
-from app.schemas.driver import DriverCreate, DriverUpdate
+from app.schemas.driver import DriverCreate, DriverUpdate, DriverDB
 from tests.utils.driver import create_test_driver
 from tests.utils.team import create_test_team
 from tests.utils.user import create_test_user
@@ -70,19 +70,15 @@ class TestGetTeamDrivers:
         team = await create_test_team(owner_id=user.id)
 
         drivers = await crud_driver.get_team_drivers(team_id=team.id)
+        driver1 = drivers[0]
 
         assert len(drivers) == 5
+        assert isinstance(driver1, DriverDB)
 
 
 class TestUpdateDriver:
     async def test_update_driver_works(self) -> None:
-        driver_in = DriverCreate(
-            first_name='Lando',
-            last_name='Norris',
-            short_name='NOR',
-        )
-
-        driver_to_update = await crud_driver.create(driver_in=driver_in)
+        driver_to_update = await create_test_driver()
 
         updated_driver_in = DriverUpdate(
             first_name='George',

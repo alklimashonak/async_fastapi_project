@@ -92,3 +92,4 @@ class TestAddDriverToTeam:
         drivers = await crud_driver.get_team_drivers(team_id=team.id)
 
         assert len(drivers) == 6
+        assert driver in drivers
